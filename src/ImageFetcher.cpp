@@ -25,11 +25,11 @@ ImageFetcher::ImageFetcher(Client &client)
     this->client = &client;
 }
 
-int ImageFetcher::makeGetRequest(const char *command, const char *authorization, const char *accept, const char *host)
+int ImageFetcher::makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host)
 {
     client->flush();
     client->setTimeout(IMAGE_FETCHER_TIMEOUT);
-    if (!client->connect(host, httpsPortNumber))
+    if (!client->connect(host, portNumber))
     {
 #ifdef IMAGE_FETCHER_SERIAL_OUTPUT
         Serial.println(F("Connection failed"));
