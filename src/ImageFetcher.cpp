@@ -167,7 +167,7 @@ bool ImageFetcher::getImage(char *imageUrl, Stream *file)
 #endif
     if (totalLength > 0)
     {
-        skipHeaders(false);
+        skipHeaders();
         int remaining = totalLength;
         // This section of code is inspired but the "Web_Jpg"
         // example of TJpg_Decoder
@@ -216,7 +216,7 @@ bool ImageFetcher::getImage(char *imageUrl, uint8_t **image, int *imageLength)
 #endif
     if (totalLength > 0)
     {
-        skipHeaders(false);
+        skipHeaders();
         uint8_t *imgPtr = (uint8_t *)malloc(totalLength);
         *image = imgPtr;
         *imageLength = totalLength;
