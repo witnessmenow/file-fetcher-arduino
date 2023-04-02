@@ -100,13 +100,12 @@ int ImageFetcher::commonGetImage(char *imageUrl)
         protocolLength = 8;
         portNumber = this->httpsPortNumber;
     }
-    else if strncmp (imageUrl, "http://", 7)
-        == 0
-        {
-            // Is HTTP
-            protocolLength = 7;
-            portNumber = this->httpPortNumber;
-        }
+    else if (strncmp(imageUrl, "http://", 7) == 0)
+    {
+        // Is HTTP
+        protocolLength = 7;
+        portNumber = this->httpPortNumber;
+    }
     else
     {
 #ifdef IMAGE_FETCHER_SERIAL_OUTPUT
