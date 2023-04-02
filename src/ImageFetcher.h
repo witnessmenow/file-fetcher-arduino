@@ -39,14 +39,8 @@ class ImageFetcher
 public:
     ImageFetcher(Client &client);
 
-    // Auth Methods
-    void setRefreshToken(const char *refreshToken);
-    bool refreshAccessToken();
-    bool checkAndRefreshAccessToken();
-    const char *requestAccessTokens(const char *code, const char *redirectUrl);
-
     // Generic Request Methods
-    int makeGetRequest(const char *command, const char *authorization, const char *accept, const char *host);
+    int makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host);
 
     // Image methods
     bool getImage(char *imageUrl, Stream *file);
@@ -60,7 +54,7 @@ private:
     int commonGetImage(char *imageUrl);
     int getContentLength();
     int getHttpStatusCode();
-    void skipHeaders(bool tossUnexpectedForJSON = true);
+    void skipHeaders();
     void closeClient();
 };
 

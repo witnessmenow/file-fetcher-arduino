@@ -1,6 +1,7 @@
 /*******************************************************************
-    A sketch to fetch a image from the internet and save it on
-    flash
+    A sketch to fetch a image from the internet and store it in memory
+
+    Useful for smaller images
 
     Parts:
     ESP32 D1 Mini stlye Dev board* - http://s.click.aliexpress.com/e/C6ds4my
@@ -23,8 +24,6 @@
 // Standard Libraries
 // ----------------------------
 
-#include <FS.h>
-#include "SPIFFS.h"
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 
@@ -38,53 +37,35 @@
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWORD "password"
 
-#define IMAGE_NAME "/img.png"
-
 WiFiClientSecure secured_client;
 ImageFetcher imageFetcher(secured_client);
 
-int getImage(char *imageUrl)
+bool getImage(char *imageUrl)
 {
-    // In this example I reuse the same filename
-    // over and over
-    if (SPIFFS.exists(IMAGE_NAME) == true)
+
+    uint8_t *imageFile; // pointer that the library will store the image at (uses malloc)
+    int imageSize;      // library will update the size of the image
+    bool gotImage = imageFetcher.getImage(imageUrl, &imageFile, &imageSize);
+
+    if (gotImage)
     {
-        Serial.println("Removing existing image");
-        SPIFFS.remove(IMAGE_NAME);
+        Serial.print("Got Image");
+
+        // imageFile is now a pointer to memory that contains the image file
+        // imageSize is the size of the image
+
+        // Use it however you need to!
+
+        free(imageFile); // Make sure to free the memory!
     }
 
-    fs::File f = SPIFFS.open(IMAGE_NAME, "w+");
-    if (!f)
-    {
-        Serial.println("file open failed");
-        return -1;
-    }
-
-    bool gotImage = imageFetcher.getImage(imageUrl, &f);
-
-    // Make sure to close the file!
-    f.close();
-
-    return gotImage;
+    return gotImage'
 }
 
 void setup()
 {
     Serial.begin(115200);
     Serial.println();
-
-    // Initialise SPIFFS, if this fails try .begin(true)
-    // NOTE: I believe this formats it though it will erase everything on
-    // spiffs already! In this example that is not a problem.
-    // I have found once I used the true flag once, I could use it
-    // without the true flag after that.
-    bool spiffsInitSuccess = SPIFFS.begin(false) || SPIFFS.begin(true);
-    if (!spiffsInitSuccess)
-    {
-        Serial.println("SPIFFS initialisation failed!");
-        while (1)
-            yield(); // Stay here twiddling thumbs waiting
-    }
 
     // attempt to connect to Wifi network:
     Serial.print("Connecting to Wifi SSID ");

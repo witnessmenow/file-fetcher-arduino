@@ -1,0 +1,24 @@
+name: Build Arduino Sketch
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: "esp32:esp32:tinypico"
+          platforms: |
+            - name: esp32:esp32
+              source-url: https://dl.espressif.com/dl/package_esp32_index.json
+          libraries: |
+            - source-path: ./
+            - name: TFT_eSPI
+            - name: PNGdec
+          sketch-paths: |
+            - examples

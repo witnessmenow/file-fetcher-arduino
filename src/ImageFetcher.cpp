@@ -61,6 +61,8 @@ int ImageFetcher::makeGetRequest(const char *command, const char *authorization,
         client->println(authorization);
     }
 
+    client->println(F("User-Agent: Arduino"));
+
     client->println(F("Cache-Control: no-cache"));
 
     if (client->println() == 0)
@@ -89,17 +91,30 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     // seen and I can't imagine a company will go back
     // to http
 
-    if (strncmp(imageUrl, "https://", 8) != 0)
+    uint8_t protocolLength = 0;
+    int portNumber = 80;
+
+    if (strncmp(imageUrl, "https://", 8) == 0)
+    {
+        // Is HTTPS
+        protocolLength = 8;
+        portNumber = this->httpsPortNumber;
+    }
+    else if strncmp (imageUrl, "http://", 7)
+        == 0
+        {
+            // Is HTTP
+            protocolLength = 7;
+            portNumber = this->httpPortNumber;
+        }
+    else
     {
 #ifdef IMAGE_FETCHER_SERIAL_OUTPUT
         Serial.print(F("Url not in expected format: "));
         Serial.println(imageUrl);
-        Serial.println("(expected it to start with \"https://\")");
+        Serial.println("(expected it to start with \"https://\" or \"http://\")");
 #endif
-        return false;
     }
-
-    uint8_t protocolLength = 8;
 
     char *pathStart = strchr(imageUrl + protocolLength, '/');
     uint8_t pathIndex = pathStart - imageUrl;
@@ -128,7 +143,7 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     Serial.println(strlen(path));
 #endif
 
-    int statusCode = makeGetRequest(path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", host);
+    int statusCode = makeGetRequest(portNumber, path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", host);
 #ifdef IMAGE_FETCHER_DEBUG
     Serial.print(F("statusCode: "));
     Serial.println(statusCode);
@@ -266,30 +281,15 @@ int ImageFetcher::getContentLength()
     return -1;
 }
 
-void ImageFetcher::skipHeaders(bool tossUnexpectedForJSON)
+void ImageFetcher::skipHeaders()
 {
-    // Skip HTTP headers
+
     if (!client->find("\r\n\r\n"))
     {
 #ifdef IMAGE_FETCHER_SERIAL_OUTPUT
         Serial.println(F("Invalid response"));
 #endif
         return;
-    }
-
-    if (tossUnexpectedForJSON)
-    {
-        // Was getting stray characters between the headers and the body
-        // This should toss them away
-        while (client->available() && client->peek() != '{')
-        {
-            char c = 0;
-            client->readBytes(&c, 1);
-#ifdef IMAGE_FETCHER_DEBUG
-            Serial.print(F("Tossing an unexpected character: "));
-            Serial.println(c);
-#endif
-        }
     }
 }
 
