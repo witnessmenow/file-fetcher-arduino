@@ -59,7 +59,7 @@ bool getImage(char *imageUrl)
         free(imageFile); // Make sure to free the memory!
     }
 
-    return gotImage'
+    return gotImage;
 }
 
 void setup()
