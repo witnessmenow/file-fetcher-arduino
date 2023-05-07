@@ -31,21 +31,21 @@
 // Additional Libraries - each one of these will need to be installed.
 // ----------------------------
 
-#include <ImageFetcher.h>
+#include <FileFetcher.h>
 
 // Wifi network station credentials
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWORD "password"
 
 WiFiClientSecure secured_client;
-ImageFetcher imageFetcher(secured_client);
+FileFetcher fileFetcher(secured_client);
 
 bool getImage(char *imageUrl)
 {
 
     uint8_t *imageFile; // pointer that the library will store the image at (uses malloc)
     int imageSize;      // library will update the size of the image
-    bool gotImage = imageFetcher.getImage(imageUrl, &imageFile, &imageSize);
+    bool gotImage = fileFetcher.getFile(imageUrl, &imageFile, &imageSize);
 
     if (gotImage)
     {

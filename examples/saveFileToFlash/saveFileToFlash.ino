@@ -1,12 +1,12 @@
 /*******************************************************************
-    A sketch to fetch a image from the internet and save it on
+    A sketch to fetch a file from the internet and save it on
     flash
 
     Parts:
     ESP32 D1 Mini stlye Dev board* - http://s.click.aliexpress.com/e/C6ds4my
     (or any ESP32 board)
 
-    *  = Affilate
+       = Affilate
 
     If you find what I do useful and would like to support me,
     please consider becoming a sponsor on Github
@@ -38,34 +38,34 @@
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWORD "password"
 
-#define IMAGE_NAME "/img.png"
+#define FILE_NAME "/races.json"
 
 WiFiClientSecure secured_client;
 FileFetcher fileFetcher(secured_client);
 
-int getImage(char *imageUrl)
+int getFile(char *fileUrl)
 {
     // In this example I reuse the same filename
     // over and over
-    if (SPIFFS.exists(IMAGE_NAME) == true)
+    if (SPIFFS.exists(FILE_NAME) == true)
     {
-        Serial.println("Removing existing image");
-        SPIFFS.remove(IMAGE_NAME);
+        Serial.println("Removing existing file");
+        SPIFFS.remove(FILE_NAME);
     }
 
-    fs::File f = SPIFFS.open(IMAGE_NAME, "w+");
+    fs::File f = SPIFFS.open(FILE_NAME, "w+");
     if (!f)
     {
         Serial.println("file open failed");
         return -1;
     }
 
-    bool gotImage = fileFetcher.getFile(imageUrl, &f);
+    bool gotFile = fileFetcher.getFile(fileUrl, &f);
 
     // Make sure to close the file!
     f.close();
 
-    return gotImage;
+    return gotFile;
 }
 
 void setup()
@@ -101,9 +101,26 @@ void setup()
     Serial.print("\nWiFi connected. IP address: ");
     Serial.println(WiFi.localIP());
 
-    int returnStatus = getImage("https://i.imgur.com/ewrhVKU.png");
+    int returnStatus = getFile("https://raw.githubusercontent.com/sportstimes/f1/main/_db/f1/2023.json");
     Serial.print("returnStatus: ");
     Serial.println(returnStatus);
+
+    if (returnStatus)
+    {
+        File file2 = SPIFFS.open(FILE_NAME);
+        if (!file2)
+        {
+            Serial.println("Failed to open file for reading");
+            return -1;
+        }
+
+        Serial.println("File Content:");
+        while (file2.available())
+        {
+            Serial.write(file2.read());
+        }
+        file2.close();
+    }
 }
 
 void loop()

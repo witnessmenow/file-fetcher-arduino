@@ -54,7 +54,7 @@ PNG png;
 #define IMAGE_NAME "/img.png"
 
 WiFiClientSecure secured_client;
-ImageFetcher imageFetcher(secured_client);
+FileFetcher fileFetcher(secured_client);
 
 void PNGDraw(PNGDRAW *pDraw)
 {
@@ -132,7 +132,7 @@ int getImage(char *imageUrl)
         return -1;
     }
 
-    bool gotImage = imageFetcher.getImage(imageUrl, &f);
+    bool gotImage = fileFetcher.getFile(imageUrl, &f);
 
     // Make sure to close the file!
     f.close();

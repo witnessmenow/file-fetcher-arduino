@@ -1,5 +1,5 @@
 /*
-ImageFetcher - A library for fetching images from the web
+FileFetcher - A library for fetching files & images from the web
 
 Copyright (c) 2023  Brian Lough.
 
@@ -18,40 +18,40 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ImageFetcher_h
-#define ImageFetcher_h
+#ifndef FileFetcher_h
+#define FileFetcher_h
 
 // I find setting these types of flags unreliable from the Arduino IDE
 // so uncomment this if its not working for you.
 
-#define IMAGE_FETCHER_DEBUG 1
+#define FILE_FETCHER_DEBUG 1
 
 // Comment out if you want to disable any serial output from this library (also comment out DEBUG and PRINT_JSON_PARSE)
-#define IMAGE_FETCHER_SERIAL_OUTPUT 1
+#define FILE_FETCHER_SERIAL_OUTPUT 1
 
 #include <Arduino.h>
 #include <Client.h>
 
-#define IMAGE_FETCHER_TIMEOUT 2000
+#define FILE_FETCHER_TIMEOUT 2000
 
-class ImageFetcher
+class FileFetcher
 {
 public:
-    ImageFetcher(Client &client);
+    FileFetcher(Client &client);
 
     // Generic Request Methods
     int makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host);
 
-    // Image methods
-    bool getImage(char *imageUrl, Stream *file);
-    bool getImage(char *imageUrl, uint8_t **image, int *imageLength);
+    // File methods
+    bool getFile(char *fileUrl, Stream *file);
+    bool getFile(char *fileUrl, uint8_t **file, int *fileLength);
 
     int httpsPortNumber = 443;
     int httpPortNumber = 80;
     Client *client;
 
 private:
-    int commonGetImage(char *imageUrl);
+    int commonGetFile(char *fileUrl);
     int getContentLength();
     int getHttpStatusCode();
     void skipHeaders();

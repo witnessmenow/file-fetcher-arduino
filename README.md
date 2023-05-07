@@ -1,8 +1,8 @@
-# image-fetcher-arduino
+# file-fetcher-arduino
 
-A library for getting images on arduino based boards (ESP mainly, maybe others)
+A library for getting files & images on arduino based boards (ESP mainly, maybe others)
 
-Trying to make getting images as easy as possible while keeping it generic so it should hopefully work on most types of boards.
+Trying to make getting files (or images) as easy as possible while keeping it generic so it should hopefully work on most types of boards.
 
 ## Work in progress library!
 
@@ -19,33 +19,33 @@ I have put a lot of effort into creating Arduino libraries that I hope people ca
 ```
 
 WiFiClientSecure secured_client;
-ImageFetcher imageFetcher(secured_client);
+ImageFetcher fileFetcher(secured_client);
 
 // If HTTPS make sure to handle it
 // Either set a cert, fingerprint or set insecure
 
 ```
 
-2. If you want to save the image to memory, pass in a pointer and a int (or full [example](/examples/saveImageToMemory))
+2. If you want to save the file to memory, pass in a pointer and a int (or full [example](/examples/saveImageToMemory))
 
 ```
-uint8_t *imageFile; // pointer that the library will store the image at (uses malloc)
-int imageSize;      // library will update the size of the image
-bool gotImage = imageFetcher.getImage(imageUrl, &imageFile, &imageSize);
+uint8_t *fileFile; // pointer that the library will store the file at (uses malloc)
+int fileSize;      // library will update the size of the file
+bool gotImage = fileFetcher.getImage(fileUrl, &fileFile, &fileSize);
 
 if(gotImage){
-    // imageFile is now a pointer to memory that contains the image file
-    // imageSize is the size of the image
+    // fileFile is now a pointer to memory that contains the file file
+    // fileSize is the size of the file
 
     // Use it however you need to!
 
-    free(imageFile); // Make sure to free the memory!
+    free(fileFile); // Make sure to free the memory!
 }
 
 
 ```
 
-3. If you want to save the image to File (SPIFFS, SD etc), pass in a file pointer. (or full [example](/examples/saveImageToFlash))
+3. If you want to save the file to File (SPIFFS, SD etc), pass in a file pointer. (or full [example](/examples/saveImageToFlash))
 
 ```
 
@@ -56,7 +56,7 @@ if (!f)
     return -1;
 }
 
-bool gotImage = imageFetcher.getImage(imageUrl, &f);
+bool gotImage = fileFetcher.getImage(fileUrl, &f);
 
 // Make sure to close the file!
 f.close();

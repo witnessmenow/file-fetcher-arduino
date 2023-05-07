@@ -1,5 +1,5 @@
 /*
-ImageFetcher - A library for fetching images from the web
+FileFetcher - A library for fetching files & images from the web
 
 Copyright (c) 2023  Brian Lough.
 
@@ -18,14 +18,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "ImageFetcher.h"
+#include "FileFetcher.h"
 
-ImageFetcher::ImageFetcher(Client &client)
+FileFetcher::FileFetcher(Client &client)
 {
     this->client = &client;
 }
 
-int ImageFetcher::makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host)
+int FileFetcher::makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host)
 {
     client->flush();
     client->setTimeout(IMAGE_FETCHER_TIMEOUT);
@@ -78,14 +78,14 @@ int ImageFetcher::makeGetRequest(int portNumber, const char *command, const char
     return statusCode;
 }
 
-int ImageFetcher::commonGetImage(char *imageUrl)
+int FileFetcher::commonGetFile(char *fileUrl)
 {
 #ifdef IMAGE_FETCHER_DEBUG
-    Serial.print(F("Parsing image URL: "));
-    Serial.println(imageUrl);
+    Serial.print(F("Parsing file URL: "));
+    Serial.println(fileUrl);
 #endif
 
-    uint8_t lengthOfString = strlen(imageUrl);
+    uint8_t lengthOfString = strlen(fileUrl);
 
     // We are going to just assume https, that's all I've
     // seen and I can't imagine a company will go back
@@ -94,13 +94,13 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     uint8_t protocolLength = 0;
     int portNumber = 80;
 
-    if (strncmp(imageUrl, "https://", 8) == 0)
+    if (strncmp(fileUrl, "https://", 8) == 0)
     {
         // Is HTTPS
         protocolLength = 8;
         portNumber = this->httpsPortNumber;
     }
-    else if (strncmp(imageUrl, "http://", 7) == 0)
+    else if (strncmp(fileUrl, "http://", 7) == 0)
     {
         // Is HTTP
         protocolLength = 7;
@@ -110,13 +110,13 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     {
 #ifdef IMAGE_FETCHER_SERIAL_OUTPUT
         Serial.print(F("Url not in expected format: "));
-        Serial.println(imageUrl);
+        Serial.println(fileUrl);
         Serial.println("(expected it to start with \"https://\" or \"http://\")");
 #endif
     }
 
-    char *pathStart = strchr(imageUrl + protocolLength, '/');
-    uint8_t pathIndex = pathStart - imageUrl;
+    char *pathStart = strchr(fileUrl + protocolLength, '/');
+    uint8_t pathIndex = pathStart - fileUrl;
     uint8_t pathLength = lengthOfString - pathIndex;
     char path[pathLength + 1];
     strncpy(path, pathStart, pathLength);
@@ -124,7 +124,7 @@ int ImageFetcher::commonGetImage(char *imageUrl)
 
     uint8_t hostLength = pathIndex - protocolLength;
     char host[hostLength + 1];
-    strncpy(host, imageUrl + protocolLength, hostLength);
+    strncpy(host, fileUrl + protocolLength, hostLength);
     host[hostLength] = '\0';
 
 #ifdef IMAGE_FETCHER_DEBUG
@@ -142,7 +142,7 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     Serial.println(strlen(path));
 #endif
 
-    int statusCode = makeGetRequest(portNumber, path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", host);
+    int statusCode = makeGetRequest(portNumber, path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,file/webp,*/*;q=0.8", host);
 #ifdef IMAGE_FETCHER_DEBUG
     Serial.print(F("statusCode: "));
     Serial.println(statusCode);
@@ -156,9 +156,9 @@ int ImageFetcher::commonGetImage(char *imageUrl)
     return -1;
 }
 
-bool ImageFetcher::getImage(char *imageUrl, Stream *file)
+bool FileFetcher::getFile(char *fileUrl, Stream *file)
 {
-    int totalLength = commonGetImage(imageUrl);
+    int totalLength = commonGetFile(fileUrl);
 
 #ifdef IMAGE_FETCHER_DEBUG
     Serial.print(F("file length: "));
@@ -196,7 +196,7 @@ bool ImageFetcher::getImage(char *imageUrl, Stream *file)
         }
 // ---------
 #ifdef IMAGE_FETCHER_DEBUG
-        Serial.println(F("Finished getting image"));
+        Serial.println(F("Finished getting file"));
 #endif
     }
 
@@ -205,9 +205,9 @@ bool ImageFetcher::getImage(char *imageUrl, Stream *file)
     return (totalLength > 0); // Probably could be improved!
 }
 
-bool ImageFetcher::getImage(char *imageUrl, uint8_t **image, int *imageLength)
+bool FileFetcher::getFile(char *fileUrl, uint8_t **file, int *fileLength)
 {
-    int totalLength = commonGetImage(imageUrl);
+    int totalLength = commonGetFile(fileUrl);
 
 #ifdef IMAGE_FETCHER_DEBUG
     Serial.print(F("file length: "));
@@ -217,13 +217,13 @@ bool ImageFetcher::getImage(char *imageUrl, uint8_t **image, int *imageLength)
     {
         skipHeaders();
         uint8_t *imgPtr = (uint8_t *)malloc(totalLength);
-        *image = imgPtr;
-        *imageLength = totalLength;
+        *file = imgPtr;
+        *fileLength = totalLength;
         int remaining = totalLength;
         int amountRead = 0;
 
 #ifdef IMAGE_FETCHER_DEBUG
-        Serial.println(F("Fetching Image"));
+        Serial.println(F("Fetching File"));
 #endif
 
         // This section of code is inspired but the "Web_Jpg"
@@ -255,7 +255,7 @@ bool ImageFetcher::getImage(char *imageUrl, uint8_t **image, int *imageLength)
         }
 // ---------
 #ifdef IMAGE_FETCHER_DEBUG
-        Serial.println(F("Finished getting image"));
+        Serial.println(F("Finished getting file"));
 #endif
     }
 
@@ -264,7 +264,7 @@ bool ImageFetcher::getImage(char *imageUrl, uint8_t **image, int *imageLength)
     return (totalLength > 0); // Probably could be improved!
 }
 
-int ImageFetcher::getContentLength()
+int FileFetcher::getContentLength()
 {
 
     if (client->find("Content-Length:"))
@@ -280,7 +280,7 @@ int ImageFetcher::getContentLength()
     return -1;
 }
 
-void ImageFetcher::skipHeaders()
+void FileFetcher::skipHeaders()
 {
 
     if (!client->find("\r\n\r\n"))
@@ -292,7 +292,7 @@ void ImageFetcher::skipHeaders()
     }
 }
 
-int ImageFetcher::getHttpStatusCode()
+int FileFetcher::getHttpStatusCode()
 {
     char status[32] = {0};
     client->readBytesUntil('\r', status, sizeof(status));
@@ -325,7 +325,7 @@ int ImageFetcher::getHttpStatusCode()
     return -1;
 }
 
-void ImageFetcher::closeClient()
+void FileFetcher::closeClient()
 {
     if (client->connected())
     {
