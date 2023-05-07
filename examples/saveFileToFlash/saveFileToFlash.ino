@@ -111,7 +111,7 @@ void setup()
         if (!file2)
         {
             Serial.println("Failed to open file for reading");
-            return -1;
+            return;
         }
 
         Serial.println("File Content:");

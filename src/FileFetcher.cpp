@@ -28,10 +28,10 @@ FileFetcher::FileFetcher(Client &client)
 int FileFetcher::makeGetRequest(int portNumber, const char *command, const char *authorization, const char *accept, const char *host)
 {
     client->flush();
-    client->setTimeout(IMAGE_FETCHER_TIMEOUT);
+    client->setTimeout(FILE_FETCHER_TIMEOUT);
     if (!client->connect(host, portNumber))
     {
-#ifdef IMAGE_FETCHER_SERIAL_OUTPUT
+#ifdef FILE_FETCHER_SERIAL_OUTPUT
         Serial.println(F("Connection failed"));
 #endif
         return -1;
@@ -67,7 +67,7 @@ int FileFetcher::makeGetRequest(int portNumber, const char *command, const char 
 
     if (client->println() == 0)
     {
-#ifdef IMAGE_FETCHER_SERIAL_OUTPUT
+#ifdef FILE_FETCHER_SERIAL_OUTPUT
         Serial.println(F("Failed to send request"));
 #endif
         return -2;
@@ -80,7 +80,7 @@ int FileFetcher::makeGetRequest(int portNumber, const char *command, const char 
 
 int FileFetcher::commonGetFile(char *fileUrl)
 {
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("Parsing file URL: "));
     Serial.println(fileUrl);
 #endif
@@ -108,7 +108,7 @@ int FileFetcher::commonGetFile(char *fileUrl)
     }
     else
     {
-#ifdef IMAGE_FETCHER_SERIAL_OUTPUT
+#ifdef FILE_FETCHER_SERIAL_OUTPUT
         Serial.print(F("Url not in expected format: "));
         Serial.println(fileUrl);
         Serial.println("(expected it to start with \"https://\" or \"http://\")");
@@ -127,7 +127,7 @@ int FileFetcher::commonGetFile(char *fileUrl)
     strncpy(host, fileUrl + protocolLength, hostLength);
     host[hostLength] = '\0';
 
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
 
     Serial.print(F("host: "));
     Serial.println(host);
@@ -143,7 +143,7 @@ int FileFetcher::commonGetFile(char *fileUrl)
 #endif
 
     int statusCode = makeGetRequest(portNumber, path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,file/webp,*/*;q=0.8", host);
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("statusCode: "));
     Serial.println(statusCode);
 #endif
@@ -160,7 +160,7 @@ bool FileFetcher::getFile(char *fileUrl, Stream *file)
 {
     int totalLength = commonGetFile(fileUrl);
 
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("file length: "));
     Serial.println(totalLength);
 #endif
@@ -195,7 +195,7 @@ bool FileFetcher::getFile(char *fileUrl, Stream *file)
             yield();
         }
 // ---------
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
         Serial.println(F("Finished getting file"));
 #endif
     }
@@ -209,7 +209,7 @@ bool FileFetcher::getFile(char *fileUrl, uint8_t **file, int *fileLength)
 {
     int totalLength = commonGetFile(fileUrl);
 
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("file length: "));
     Serial.println(totalLength);
 #endif
@@ -222,7 +222,7 @@ bool FileFetcher::getFile(char *fileUrl, uint8_t **file, int *fileLength)
         int remaining = totalLength;
         int amountRead = 0;
 
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
         Serial.println(F("Fetching File"));
 #endif
 
@@ -254,7 +254,7 @@ bool FileFetcher::getFile(char *fileUrl, uint8_t **file, int *fileLength)
             yield();
         }
 // ---------
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
         Serial.println(F("Finished getting file"));
 #endif
     }
@@ -270,7 +270,7 @@ int FileFetcher::getContentLength()
     if (client->find("Content-Length:"))
     {
         int contentLength = client->parseInt();
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
         Serial.print(F("Content-Length: "));
         Serial.println(contentLength);
 #endif
@@ -285,7 +285,7 @@ void FileFetcher::skipHeaders()
 
     if (!client->find("\r\n\r\n"))
     {
-#ifdef IMAGE_FETCHER_SERIAL_OUTPUT
+#ifdef FILE_FETCHER_SERIAL_OUTPUT
         Serial.println(F("Invalid response"));
 #endif
         return;
@@ -296,7 +296,7 @@ int FileFetcher::getHttpStatusCode()
 {
     char status[32] = {0};
     client->readBytesUntil('\r', status, sizeof(status));
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("Status: "));
     Serial.println(status);
 #endif
@@ -304,7 +304,7 @@ int FileFetcher::getHttpStatusCode()
     char *token;
     token = strtok(status, " "); // https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
     Serial.print(F("HTTP Version: "));
     Serial.println(token);
 #endif
@@ -314,7 +314,7 @@ int FileFetcher::getHttpStatusCode()
         token = strtok(NULL, " ");
         if (token != NULL)
         {
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
             Serial.print(F("Status Code: "));
             Serial.println(token);
 #endif
@@ -329,7 +329,7 @@ void FileFetcher::closeClient()
 {
     if (client->connected())
     {
-#ifdef IMAGE_FETCHER_DEBUG
+#ifdef FILE_FETCHER_DEBUG
         Serial.println(F("Closing client"));
 #endif
         client->stop();

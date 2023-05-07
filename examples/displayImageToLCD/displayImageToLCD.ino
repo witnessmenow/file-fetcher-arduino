@@ -28,7 +28,7 @@
 // Additional Libraries - each one of these will need to be installed.
 // ----------------------------
 
-#include <ImageFetcher.h>
+#include <FileFetcher.h>
 
 #include <PNGdec.h>
 // A library for decoding PNG
