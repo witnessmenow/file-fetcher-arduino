@@ -19,7 +19,7 @@ I have put a lot of effort into creating Arduino libraries that I hope people ca
 ```
 
 WiFiClientSecure secured_client;
-ImageFetcher fileFetcher(secured_client);
+FileFetcher fileFetcher(secured_client);
 
 // If HTTPS make sure to handle it
 // Either set a cert, fingerprint or set insecure
@@ -31,7 +31,7 @@ ImageFetcher fileFetcher(secured_client);
 ```
 uint8_t *fileFile; // pointer that the library will store the file at (uses malloc)
 int fileSize;      // library will update the size of the file
-bool gotImage = fileFetcher.getImage(fileUrl, &fileFile, &fileSize);
+bool gotImage = fileFetcher.getFile(fileUrl, &fileFile, &fileSize);
 
 if(gotImage){
     // fileFile is now a pointer to memory that contains the file file
@@ -56,7 +56,7 @@ if (!f)
     return -1;
 }
 
-bool gotImage = fileFetcher.getImage(fileUrl, &f);
+bool gotImage = fileFetcher.getFile(fileUrl, &f);
 
 // Make sure to close the file!
 f.close();
