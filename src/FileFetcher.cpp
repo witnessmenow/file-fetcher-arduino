@@ -61,7 +61,7 @@ int FileFetcher::makeGetRequest(int portNumber, const char *command, const char 
         client->println(authorization);
     }
 
-    client->println(F("User-Agent: Arduino"));
+    client->println(F("User-Agent: Arduino/Arduino"));
 
     client->println(F("Cache-Control: no-cache"));
 
@@ -140,9 +140,12 @@ int FileFetcher::commonGetFile(char *fileUrl)
 
     Serial.print(F("len:path: "));
     Serial.println(strlen(path));
+
+    Serial.print(F("Port: "));
+    Serial.println(portNumber);
 #endif
 
-    int statusCode = makeGetRequest(portNumber, path, NULL, "text/html,application/xhtml+xml,application/xml;q=0.9,file/webp,*/*;q=0.8", host);
+    int statusCode = makeGetRequest(portNumber, path, NULL, "*/*", host);
 #ifdef FILE_FETCHER_DEBUG
     Serial.print(F("statusCode: "));
     Serial.println(statusCode);
